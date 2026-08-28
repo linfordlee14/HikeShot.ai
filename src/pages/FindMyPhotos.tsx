@@ -8,18 +8,13 @@ import { GoogleGenAI } from '@google/genai';
 export default function FindMyPhotos() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   
   const [selfie, setSelfie] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Photo[] | null>(null);
   const [serviceUnavailableMessage, setServiceUnavailableMessage] = useState<string | null>(null);
-
-  const handleCaptureClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -145,22 +140,39 @@ export default function FindMyPhotos() {
               Upload a quick selfie, and our AI will scan the event gallery for photos of you.
             </p>
 
+            {/* Dual Input: Take Selfie vs Gallery */}
             <input 
               type="file" 
               accept="image/*" 
               capture="user" 
-              ref={fileInputRef}
+              ref={cameraInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <input 
+              type="file" 
+              accept="image/*" 
+              ref={galleryInputRef}
               onChange={handleFileChange}
               className="hidden"
             />
 
-            <button 
-              onClick={handleCaptureClick}
-              className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-lg py-4 px-6 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98]"
-            >
-              <Upload size={20} />
-              Upload Selfie
-            </button>
+            <div className="w-full flex flex-col gap-3">
+              <button 
+                onClick={() => cameraInputRef.current?.click()}
+                className="w-full bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-base py-4 px-6 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98]"
+              >
+                <Upload size={20} />
+                Take Selfie
+              </button>
+
+              <button 
+                onClick={() => galleryInputRef.current?.click()}
+                className="w-full bg-slate-900 hover:bg-slate-800 active:bg-slate-850 text-slate-100 font-bold text-base py-4 px-6 rounded-2xl flex items-center justify-center gap-2 border border-slate-700 transition-all active:scale-[0.98]"
+              >
+                <span>Choose From Gallery</span>
+              </button>
+            </div>
             
             <div className="mt-8 flex items-start gap-2 text-xs text-slate-500 bg-slate-800/40 p-3 rounded-xl border border-slate-700/50">
               <Info size={16} className="shrink-0 mt-0.5 text-emerald-500/70" />

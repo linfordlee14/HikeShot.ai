@@ -62,33 +62,33 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col text-slate-100">
-      <header className="p-4 flex items-center justify-between bg-slate-900/50 backdrop-blur-md border-b border-slate-800 sticky top-0 z-10">
-        <h1 className="text-xl font-bold">Organizer Dashboard</h1>
-        <button onClick={() => navigate(`/hike/${id}`)} className="text-emerald-400 font-medium flex items-center gap-1 hover:text-emerald-300 transition-colors">
-          Gallery <ArrowRight size={18} />
+    <div className="min-h-[100dvh] bg-slate-950 flex flex-col text-slate-100 select-none">
+      <header className="px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex items-center justify-between bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-10">
+        <h1 className="text-lg sm:text-xl font-bold">Organizer Dashboard</h1>
+        <button onClick={() => navigate(`/hike/${id}`)} className="text-emerald-400 font-medium flex items-center gap-1 hover:text-emerald-300 transition-colors text-sm">
+          Gallery <ArrowRight size={16} />
         </button>
       </header>
 
-      <main className="flex-1 p-6 max-w-md mx-auto w-full flex flex-col gap-8">
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-bold text-slate-100">{hike.name}</h2>
-          <p className="text-slate-400 font-medium">{hike.date} &bull; {hike.location || 'No location'}</p>
+      <main className="flex-1 p-5 sm:p-6 max-w-md mx-auto w-full flex flex-col gap-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
+        <div className="text-center space-y-1.5">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-100">{hike.name}</h2>
+          <p className="text-slate-400 font-medium text-xs sm:text-sm">{hike.date} &bull; {hike.location || 'No location'}</p>
         </div>
 
-        <div className="bg-emerald-600 rounded-3xl p-6 text-white flex flex-col justify-between relative overflow-hidden">
-          <div className="relative z-10 mb-6 text-center">
-            <h3 className="text-xl font-bold mb-1">Share Hike</h3>
-            <p className="text-emerald-100 text-sm">Invite your crew with a scan</p>
+        <div className="bg-emerald-600 rounded-3xl p-5 sm:p-6 text-white flex flex-col justify-between relative overflow-hidden shadow-xl shadow-emerald-950/50">
+          <div className="relative z-10 mb-4 text-center">
+            <h3 className="text-lg sm:text-xl font-bold mb-0.5">Share Hike</h3>
+            <p className="text-emerald-100 text-xs sm:text-sm">Invite your crew with a scan</p>
           </div>
           
-          <div className="relative z-10 flex flex-col items-center justify-center gap-4">
-            <div className="bg-white p-3 rounded-xl shadow-lg">
-              <QRCodeSVG value={joinUrl} size={180} fgColor="#0f172a" />
+          <div className="relative z-10 flex flex-col items-center justify-center gap-3">
+            <div className="bg-white p-3 rounded-2xl shadow-lg">
+              <QRCodeSVG value={joinUrl} size={160} fgColor="#020617" />
             </div>
-            <div className="flex flex-col gap-1 items-center">
+            <div className="flex flex-col gap-0.5 items-center">
               <span className="text-[10px] font-bold uppercase opacity-80 tracking-widest">Event Code</span>
-              <span className="text-3xl font-mono font-bold tracking-widest">{id}</span>
+              <span className="text-2xl sm:text-3xl font-mono font-bold tracking-widest">{id}</span>
             </div>
           </div>
           <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
@@ -96,33 +96,33 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={handleShare} className="flex flex-col items-center justify-center gap-2 bg-slate-800 border border-slate-700 py-4 rounded-2xl active:bg-slate-700 transition-colors">
-            <Share2 size={24} className="text-emerald-400" />
-            <span className="text-sm font-bold text-slate-200">Share</span>
+          <button onClick={handleShare} className="flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-800 py-3.5 rounded-2xl active:bg-slate-800 transition-colors">
+            <Share2 size={22} className="text-emerald-400" />
+            <span className="text-xs sm:text-sm font-bold text-slate-200">Share</span>
           </button>
           
-          <button onClick={handleCopyLink} className="flex flex-col items-center justify-center gap-2 bg-slate-800 border border-slate-700 py-4 rounded-2xl active:bg-slate-700 transition-colors">
-            <Copy size={24} className={copied ? "text-emerald-400" : "text-emerald-400"} />
-            <span className="text-sm font-bold text-slate-200">{copied ? 'Copied!' : 'Copy Link'}</span>
+          <button onClick={handleCopyLink} className="flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-800 py-3.5 rounded-2xl active:bg-slate-800 transition-colors">
+            <Copy size={22} className="text-emerald-400" />
+            <span className="text-xs sm:text-sm font-bold text-slate-200">{copied ? 'Copied!' : 'Copy Link'}</span>
           </button>
           
-          <button onClick={handleWhatsApp} className="col-span-2 flex items-center justify-center gap-3 bg-[#25D366] text-white font-bold py-4 rounded-2xl active:opacity-90 transition-opacity">
+          <button onClick={handleWhatsApp} className="col-span-2 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-bold py-3.5 rounded-2xl active:scale-[0.98] transition-all shadow-md">
             <span>Share on WhatsApp</span>
           </button>
         </div>
 
-        <div className="mt-8 space-y-4">
-          <h3 className="font-bold text-slate-300">Danger Zone</h3>
+        <div className="mt-4 space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Danger Zone</h3>
           <button 
             onClick={() => {
-              if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+              if (window.confirm('Are you sure you want to exit to home?')) {
                 navigate('/');
               }
             }}
-            className="w-full flex items-center justify-center gap-2 bg-red-950/30 hover:bg-red-950/50 transition-colors text-red-400 py-4 rounded-2xl border border-red-900/50 active:scale-[0.98] font-bold"
+            className="w-full flex items-center justify-center gap-2 bg-red-950/20 hover:bg-red-950/40 transition-colors text-red-400 py-3.5 rounded-2xl border border-red-900/40 active:scale-[0.98] font-bold text-sm"
           >
-            <Trash2 size={20} />
-            <span>Delete Event</span>
+            <Trash2 size={18} />
+            <span>Leave Dashboard</span>
           </button>
         </div>
       </main>
