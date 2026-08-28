@@ -1,0 +1,32 @@
+{
+  "collections": [
+    {
+      "id": "hikes",
+      "fields": [
+        { "name": "name", "type": "string" },
+        { "name": "date", "type": "string" },
+        { "name": "location", "type": "string" },
+        { "name": "organizerName", "type": "string" },
+        { "name": "createdAt", "type": "timestamp" }
+      ]
+    },
+    {
+      "id": "photos",
+      "fields": [
+        { "name": "hikeId", "type": "string" },
+        { "name": "participantId", "type": "string" },
+        { "name": "participantName", "type": "string" },
+        { "name": "imageUrl", "type": "string" },
+        { "name": "createdAt", "type": "timestamp" }
+      ]
+    },
+    {
+      "id": "participants",
+      "fields": [
+        { "name": "hikeId", "type": "string" },
+        { "name": "name", "type": "string" },
+        { "name": "joinedAt", "type": "timestamp" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "HikeShot",
+  "description": "An AI-powered hiking photography app to share and discover event photos.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

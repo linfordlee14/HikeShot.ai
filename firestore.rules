@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hikes (Events)
+    match /hikes/{hikeId} {
+      // Anyone with the hikeId / link can view event details
+      allow get: if true;
+      allow list: if false;
+
+      // Anyone can create a hike event with validated fields
+      allow create: if request.resource.data.id is string
+                    && request.resource.data.id.size() >= 4
+                    && request.resource.data.id.size() <= 20
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 120
+                    && request.resource.data.date is string
+                    && request.resource.data.organizerName is string
+                    && request.resource.data.organizerName.size() > 0
+                    && request.resource.data.organizerName.size() <= 80;
+
+      // Events cannot be arbitrarily modified or deleted by unauthenticated users in MVP
+      allow update, delete: if false;
+    }
+
+    // Participants
+    match /participants/{participantId} {
+      // Anyone can join a hike by creating a participant document
+      allow create: if request.resource.data.hikeId is string
+                    && request.resource.data.hikeId.size() > 0
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 80;
+
+      allow read: if true;
+      allow update, delete: if false;
+    }
+
+    // Photos
+    match /photos/{photoId} {
+      // Anyone can view and query photos for a hike
+      allow read: if true;
+
+      // Anyone can upload a photo with required metadata and size constraints (< 900KB Base64)
+      allow create: if request.resource.data.hikeId is string
+                    && request.resource.data.hikeId.size() > 0
+                    && request.resource.data.participantName is string
+                    && request.resource.data.participantName.size() > 0
+                    && request.resource.data.participantName.size() <= 80
+                    && request.resource.data.imageUrl is string
+                    && request.resource.data.imageUrl.size() > 0
+                    && request.resource.data.imageUrl.size() < 900000;
+
+      // No arbitrary editing or deletion
+      allow update, delete: if false;
+    }
+  }
+}
+
