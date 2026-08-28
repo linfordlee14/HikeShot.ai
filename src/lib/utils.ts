@@ -25,78 +25,70 @@ export const compressImage = (file: File): Promise<CompressionResult> => {
       img.src = event.target?.result as string;
       img.onload = () => {
         try {
-          const canvas = document.createElement('canvas');
-          
-          // Step 1: Calculate target dimensions (max 800px)
-          let targetWidth = img.width;
-          let targetHeight = img.height;
-          const MAX_INITIAL = 800;
+          // Helper to render image at specific max dimension and quality
+          const renderAtResolution = (maxDim: number, quality: number): { dataUrl: string; sizeKb: number } => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
 
-          if (targetWidth > targetHeight) {
-            if (targetWidth > MAX_INITIAL) {
-              targetHeight = Math.round(targetHeight * (MAX_INITIAL / targetWidth));
-              targetWidth = MAX_INITIAL;
-            }
-          } else {
-            if (targetHeight > MAX_INITIAL) {
-              targetWidth = Math.round(targetWidth * (MAX_INITIAL / targetHeight));
-              targetHeight = MAX_INITIAL;
-            }
-          }
-
-          canvas.width = targetWidth;
-          canvas.height = targetHeight;
-
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Could not initialize image processing canvas.'));
-            return;
-          }
-
-          // Fill white background for transparent PNGs converted to JPEG
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(0, 0, targetWidth, targetHeight);
-          ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-
-          // Pass 1: Try quality 0.65
-          let quality = 0.65;
-          let dataUrl = canvas.toDataURL('image/jpeg', quality);
-          let sizeInBytes = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
-          let sizeKb = Math.round(sizeInBytes / 1024);
-
-          // Pass 2: If > 320 KB, step down resolution & quality
-          if (sizeKb > 320) {
-            const SECOND_MAX = 640;
-            if (targetWidth > targetHeight) {
-              targetHeight = Math.round(targetHeight * (SECOND_MAX / targetWidth));
-              targetWidth = SECOND_MAX;
+            if (width > height) {
+              if (width > maxDim) {
+                height = Math.round(height * (maxDim / width));
+                width = maxDim;
+              }
             } else {
-              targetWidth = Math.round(targetWidth * (SECOND_MAX / targetHeight));
-              targetHeight = SECOND_MAX;
+              if (height > maxDim) {
+                width = Math.round(width * (maxDim / height));
+                height = maxDim;
+              }
             }
 
-            canvas.width = targetWidth;
-            canvas.height = targetHeight;
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, targetWidth, targetHeight);
-            ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+            canvas.width = Math.max(1, width);
+            canvas.height = Math.max(1, height);
 
-            quality = 0.55;
-            dataUrl = canvas.toDataURL('image/jpeg', quality);
-            sizeInBytes = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
-            sizeKb = Math.round(sizeInBytes / 1024);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              throw new Error('Could not initialize image processing canvas.');
+            }
+
+            // Fill white background for transparent formats converted to JPEG
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            // Calculate Base64 payload size in KB accurately
+            const sizeInBytes = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
+            const sizeKb = Math.round(sizeInBytes / 1024);
+
+            return { dataUrl, sizeKb };
+          };
+
+          // Step 1: Initial pass at 1600px max dimension, 0.75 quality
+          let result = renderAtResolution(1600, 0.75);
+
+          // Step 2: Target 100–300 KB. If > 320 KB, recompress at 1280px / 0.65
+          if (result.sizeKb > 320) {
+            result = renderAtResolution(1280, 0.65);
           }
 
-          // Hard limit guard (Firestore single doc limit is 1MB)
-          if (sizeKb > 700) {
-            reject(new Error(`Compressed photo size (${sizeKb} KB) is too large. Please select a smaller photo.`));
+          // Step 3: If still > 320 KB, recompress at 1000px / 0.60
+          if (result.sizeKb > 320) {
+            result = renderAtResolution(1000, 0.60);
+          }
+
+          // Step 4: If still > 400 KB, recompress at 800px / 0.55
+          if (result.sizeKb > 400) {
+            result = renderAtResolution(800, 0.55);
+          }
+
+          // Step 5: Strict rejection limit of 500 KB to guarantee safety and Firestore performance
+          if (result.sizeKb > 500) {
+            reject(new Error(`Compressed photo size (${result.sizeKb} KB) exceeds the 500 KB limit. Please choose a different photo.`));
             return;
           }
 
-          resolve({
-            dataUrl,
-            sizeKb
-          });
+          resolve(result);
         } catch (err) {
           reject(err);
         }
